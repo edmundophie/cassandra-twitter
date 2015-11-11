@@ -40,7 +40,7 @@ public class Twitter {
             replicationFactor = args[2];
 
         Twitter twitter = new Twitter();
-        twitter.connect(host);
+        twitter.connect("167.205.35.19");
         twitter.createSchema(TWITTER_KEYSPACE, replicationStrategy, replicationFactor);
 
         System.out.println("\n*** DIRECTIVES ***");
@@ -207,13 +207,25 @@ public class Twitter {
     }
 
     public void followUser(String followerUsername, String followedUsername) {
-        String timeId = UUIDs.timeBased().toString();
+//        String timeId = UUIDs.timeBased().toString();
+//        String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
+//                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', toUnixTimestamp("+timeId+"));";
+//        session.execute(query);
+//
+//        query = "INSERT INTO " + TABLE_FRIENDS + " (username, friend, since) " +
+//                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', toUnixTimestamp("+timeId+"));";
+//        session.execute(query);
+
+        Long unixTime = System.currentTimeMillis();
+
+        /** Jika OS yang digunakan bukanlah ubuntu, maka gantikan baris kode di atas dengan baris kode di bawah ini**/
+
         String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
-                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', toUnixTimestamp("+timeId+"));";
+                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', " + unixTime + ");";
         session.execute(query);
 
         query = "INSERT INTO " + TABLE_FRIENDS + " (username, friend, since) " +
-                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', toUnixTimestamp("+timeId+"));";
+                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', " + unixTime + ");";
         session.execute(query);
     }
 
