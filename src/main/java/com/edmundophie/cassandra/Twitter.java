@@ -5,18 +5,16 @@ import com.datastax.driver.core.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by edmundophie on 11/9/15.
  */
+
 public class Twitter {
     private Cluster cluster;
     private Session session;
-    private final static String TWITTER_KEYSPACE = "twitter";
+    private final static String TWITTER_KEYSPACE = "edmundkevintwitter";
     private final static String TABLE_USERS = "users";
     private final static String TABLE_FOLLOWERS = "followers";
     private final static String TABLE_USERLINE = "userline";
@@ -26,7 +24,7 @@ public class Twitter {
 
     public static void main(String[] args) throws IOException {
         Twitter twitter = new Twitter();
-        twitter.connect("127.0.0.1");
+        twitter.connect("167.205.35.19");
         twitter.createSchema(TWITTER_KEYSPACE, "SimpleStrategy", "1");
 
         System.out.println("\n*** DIRECTIVES ***");
@@ -46,8 +44,9 @@ public class Twitter {
         do {
             String input = new BufferedReader(new InputStreamReader(System.in)).readLine().trim();
 
-            if(input.isEmpty())
+            if(input.isEmpty()){
                 printInvalidCommand();
+            }
             else {
                 String[] parameters = new String[0];
                 int i = input.indexOf(" ");
@@ -58,6 +57,9 @@ public class Twitter {
                     parameters = unsplittedParams.split(" ");
                 } else
                     command = input;
+
+                System.out.println("Command yang diinput: " + command);
+                System.out.println("Byk param: "+ parameters.length);
 
                 if (command.equalsIgnoreCase("REGISTER") && parameters.length == 2) {
                     twitter.registerUser(parameters[0], parameters[1]);
@@ -175,12 +177,25 @@ public class Twitter {
     }
 
     public void followUser(String followerUsername, String followedUsername) {
+//        String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
+//                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', toUnixTimestamp(now()));";
+//        session.execute(query);
+//
+//        query = "INSERT INTO " + TABLE_FRIENDS + " (username, friend, since) " +
+//                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', toUnixTimestamp(now()));";
+//        session.execute(query);
+
+        long unixTime = System.currentTimeMillis()/ 1L;
+
+        /** Pada sistem unix lain selain Ubuntu, gunakan baris kode di bawah ini sebagai pengganti baris kode di atas **/
+//        long unixTime = System.currentTimeMillis()/ 1000L;
+
         String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
-                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', toUnixTimestamp(now()));";
+                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', " + unixTime + ");";
         session.execute(query);
 
         query = "INSERT INTO " + TABLE_FRIENDS + " (username, friend, since) " +
-                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', toUnixTimestamp(now()));";
+                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', " + unixTime + ");";
         session.execute(query);
     }
 
@@ -229,7 +244,7 @@ public class Twitter {
         }
 
         String query = "SELECT username, body FROM " + TABLE_TWEETS +
-                        " WHERE tweet_id IN ("+ tweetIds +");";
+                " WHERE tweet_id IN ("+ tweetIds +");";
         results = session.execute(query);
 
         return results;
