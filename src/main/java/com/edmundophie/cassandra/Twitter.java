@@ -14,7 +14,7 @@ import java.util.*;
 public class Twitter {
     private Cluster cluster;
     private Session session;
-    private final static String TWITTER_KEYSPACE = "edmundkevintwitter";
+    private final static String TWITTER_KEYSPACE = "twitter";
     private final static String TABLE_USERS = "users";
     private final static String TABLE_FOLLOWERS = "followers";
     private final static String TABLE_USERLINE = "userline";
@@ -24,7 +24,7 @@ public class Twitter {
 
     public static void main(String[] args) throws IOException {
         Twitter twitter = new Twitter();
-        twitter.connect("167.205.35.19");
+        twitter.connect("127.0.0.1");
         twitter.createSchema(TWITTER_KEYSPACE, "SimpleStrategy", "1");
 
         System.out.println("\n*** DIRECTIVES ***");
@@ -177,25 +177,12 @@ public class Twitter {
     }
 
     public void followUser(String followerUsername, String followedUsername) {
-//        String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
-//                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', toUnixTimestamp(now()));";
-//        session.execute(query);
-//
-//        query = "INSERT INTO " + TABLE_FRIENDS + " (username, friend, since) " +
-//                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', toUnixTimestamp(now()));";
-//        session.execute(query);
-
-        long unixTime = System.currentTimeMillis()/ 1L;
-
-        /** Pada sistem unix lain selain Ubuntu, gunakan baris kode di bawah ini sebagai pengganti baris kode di atas **/
-//        long unixTime = System.currentTimeMillis()/ 1000L;
-
         String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
-                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', " + unixTime + ");";
+                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', toUnixTimestamp(now()));";
         session.execute(query);
 
         query = "INSERT INTO " + TABLE_FRIENDS + " (username, friend, since) " +
-                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', " + unixTime + ");";
+                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', toUnixTimestamp(now()));";
         session.execute(query);
     }
 
