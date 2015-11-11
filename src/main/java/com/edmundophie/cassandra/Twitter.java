@@ -74,8 +74,8 @@ public class Twitter {
                 } else
                     command = input;
 
-                System.out.println("Command yang diinput: " + command);
-                System.out.println("Byk param: "+ parameters.length);
+//                System.out.println("Command yang diinput: " + command);
+//                System.out.println("Byk param: "+ parameters.length);
 
                 if (command.equalsIgnoreCase("REGISTER") && parameters.length == 2) {
                     if(twitter.isUserExist(parameters[0]))
@@ -275,9 +275,17 @@ public class Twitter {
                 tweetIds += ",";
         }
 
+//        System.out.println("TweetsIds: " + tweetIds);
+
         String query = "SELECT username, body FROM " + TABLE_TWEETS +
                 " WHERE tweet_id IN ("+ tweetIds +");";
         results = session.execute(query);
+
+//        System.out.println("Results getUserLine: " );
+//
+//        for(Row row:results) {
+//            System.out.println("@" + row.getString("username") + ": " +row.getString("body"));
+//        }
 
         return results;
     }
@@ -301,11 +309,29 @@ public class Twitter {
     }
 
     public static void printTweet(ResultSet results) {
-        if(results.all().isEmpty())
+
+        List<Row> resultslist = results.all();
+
+        if(resultslist.isEmpty()) {
             System.out.println("* No tweet yet");
-        for(Row row:results) {
+        }
+
+//        System.out.println("Hasil tanpa konversi: ");
+//
+//        for(Row row:results) {
+//            System.out.println("@" + row.getString("username") + ": " +row.getString("body"));
+//        }
+//
+//
+//        System.out.println("Hasil konversi: ");
+
+        int size = resultslist.size();
+
+        for (int i=0; i<size; i++){
+            Row row = ((Row) resultslist.get(i));
             System.out.println("@" + row.getString("username") + ": " +row.getString("body"));
         }
+
     }
 
     public boolean isUserExist(String username) {
