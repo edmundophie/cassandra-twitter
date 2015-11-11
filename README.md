@@ -10,5 +10,5 @@ Simple usage of Cassandra driver on Java for CRUD operation
 - `exit`
 
 ## Team Member
-Edmund Ophie/ 13512095
-Kevin/ 13512097
+- Edmund Ophie/ 13512095
+- Kevin/ 13512097
