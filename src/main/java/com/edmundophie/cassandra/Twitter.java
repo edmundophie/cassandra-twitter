@@ -1,6 +1,7 @@
 package com.edmundophie.cassandra;
 
 import com.datastax.driver.core.*;
+import com.datastax.driver.core.utils.UUIDs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,6 +15,9 @@ import java.util.*;
 public class Twitter {
     private Cluster cluster;
     private Session session;
+    private final static String DEFAULT_HOST = "127.0.0.1";
+    private final static String DEFAULT_REPLICATION_STRATEGY = "SimpleStrategy";
+    private final static String DEFAULT_REPLICATION_FACTOR = "1";
     private final static String TWITTER_KEYSPACE = "twitter";
     private final static String TABLE_USERS = "users";
     private final static String TABLE_FOLLOWERS = "followers";
@@ -23,13 +27,25 @@ public class Twitter {
     private final static String TABLE_FRIENDS = "friends";
 
     public static void main(String[] args) throws IOException {
+        String host = DEFAULT_HOST;
+        String replicationStrategy = DEFAULT_REPLICATION_STRATEGY;
+        String replicationFactor = DEFAULT_REPLICATION_FACTOR;
+        if(args.length>0)
+            host = args[0];
+
+        if(args.length>1)
+            replicationStrategy = args[1];
+
+        if(args.length>2)
+            replicationFactor = args[2];
+
         Twitter twitter = new Twitter();
-        twitter.connect("127.0.0.1");
-        twitter.createSchema(TWITTER_KEYSPACE, "SimpleStrategy", "1");
+        twitter.connect(host);
+        twitter.createSchema(TWITTER_KEYSPACE, replicationStrategy, replicationFactor);
 
         System.out.println("\n*** DIRECTIVES ***");
         System.out.println("---------****--------");
-        System.out.println("* REGISTER <username>");
+        System.out.println("* REGISTER <username> <password>");
         System.out.println("* FOLLOW <follower_username> <followed_username>");
         System.out.println("* ADDTWEET <username> <tweet>");
         System.out.println("* VIEWTWEET <username>");
@@ -62,14 +78,26 @@ public class Twitter {
                 System.out.println("Byk param: "+ parameters.length);
 
                 if (command.equalsIgnoreCase("REGISTER") && parameters.length == 2) {
-                    twitter.registerUser(parameters[0], parameters[1]);
-                    System.out.println("* " + parameters[0] + " succesfully registered");
+                    if(twitter.isUserExist(parameters[0]))
+                        System.out.println("* Username already exist!");
+                    else {
+                        twitter.registerUser(parameters[0], parameters[1]);
+                        System.out.println("* " + parameters[0] + " succesfully registered");
+                    }
                 } else if (command.equalsIgnoreCase("FOLLOW") && parameters.length == 2) {
-                    twitter.followUser(parameters[0], parameters[1]);
-                    System.out.println("* " + parameters[0] + " is now following " + parameters[1]);
+                    if(!twitter.isUserExist(parameters[0]) || !twitter.isUserExist(parameters[1]))
+                        System.out.println("* Failed to execute command!\n* User may have not been registered");
+                    else {
+                        twitter.followUser(parameters[0], parameters[1]);
+                        System.out.println("* " + parameters[0] + " is now following " + parameters[1]);
+                    }
                 } else if (command.equalsIgnoreCase("ADDTWEET") && parameters.length>=2) {
-                    twitter.insertTweet(parameters[0], unsplittedParams.substring(parameters[0].length()));
-                    System.out.println("* " + parameters[0] + " tweet has been added");
+                    if(!twitter.isUserExist(parameters[0]))
+                        System.out.println("* Failed to execute command!\n* User may have not been registered");
+                    else {
+                        twitter.insertTweet(parameters[0], unsplittedParams.substring(parameters[0].length()));
+                        System.out.println("* " + parameters[0] + " tweet has been added");
+                    }
                 } else if (command.equalsIgnoreCase("VIEWTWEET") && parameters.length==1) {
                     ResultSet results = twitter.getUserline(parameters[0]);
                     printTweet(results);
@@ -111,6 +139,8 @@ public class Twitter {
     }
 
     public void createSchema(String keyspace, String replicationStrategy, String replicationFactor) {
+        System.out.println("\nCreating schema...");
+
         // Create keyspace
         String query = "CREATE KEYSPACE IF NOT EXISTS " + keyspace +
                 " WITH replication = {'class':'" + replicationStrategy + "', 'replication_factor':"+replicationFactor+"};";
@@ -177,27 +207,30 @@ public class Twitter {
     }
 
     public void followUser(String followerUsername, String followedUsername) {
+        String timeId = UUIDs.timeBased().toString();
         String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
-                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', toUnixTimestamp(now()));";
+                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', toUnixTimestamp("+timeId+"));";
         session.execute(query);
 
         query = "INSERT INTO " + TABLE_FRIENDS + " (username, friend, since) " +
-                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', toUnixTimestamp(now()));";
+                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', toUnixTimestamp("+timeId+"));";
         session.execute(query);
     }
 
     public void insertTweet(String username, String tweet) {
-        String tweetId = UUID.randomUUID().toString();
+        String tweetId = UUIDs.random().toString();
+        String timeId = UUIDs.timeBased().toString();
+
         String query = "INSERT INTO " + TABLE_TWEETS + " (tweet_id, username, body) " +
                 "VALUES (" + tweetId + ", '" + username +"', '"+ tweet +"');";
         session.execute(query);
 
         query = "INSERT INTO "+ TABLE_USERLINE +" (username, time, tweet_id) " +
-                "VALUES ('" + username + "', now(), "+ tweetId +");";
+                "VALUES ('" + username + "', " + timeId +", "+ tweetId +");";
         session.execute(query);
 
         query = "INSERT INTO "+ TABLE_TIMELINE +" (username, time, tweet_id) " +
-                "VALUES ('" + username + "', now(), "+ tweetId +");";
+                "VALUES ('" + username + "', " + timeId +", "+ tweetId +");";
         session.execute(query);
 
         ResultSet results = session.execute("SELECT follower FROM " + TABLE_FOLLOWERS +
@@ -208,7 +241,7 @@ public class Twitter {
             query = "INSERT INTO " + TABLE_TIMELINE + " (username, time, tweet_id) VALUES ";
 
             for(int i=0;i<rows.size();++i) {
-                query += "('" + rows.get(i).getString(0) + "', now(), " + tweetId + ")";
+                query += "('" + rows.get(i).getString(0) + "', "+ timeId +", " + tweetId + ")";
                 if(i!=rows.size()-1)
                     query += ",";
             }
@@ -256,8 +289,17 @@ public class Twitter {
     }
 
     public static void printTweet(ResultSet results) {
+        if(results.all().isEmpty())
+            System.out.println("* No tweet yet");
         for(Row row:results) {
             System.out.println("@" + row.getString("username") + ": " +row.getString("body"));
         }
+    }
+
+    public boolean isUserExist(String username) {
+        ResultSet results = session.execute("SELECT * FROM " + TABLE_USERS +
+                " WHERE username = '" + username + "';");
+        List<Row> rows = results.all();
+        return rows.size()>0;
     }
 }
