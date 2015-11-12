@@ -25,7 +25,9 @@ Run `Twitter` from the generated `jar` in `target` folder
 	 ```
 	 $ java -cp target/dependency/*:target/cassandra-twitter-1.0.jar com.edmundophie.cassandra.Twitter <host> <replication_strategy> <replication_factor>
 	 ```
-*Note that parameter `host`, `replication_strategy`, and `replication_factor` are optional. If any of them are not provided then they will be set to each own default value;*
+	 
+*Note that parameter `host`, `replication_strategy`, and `replication_factor` are optional. If any of them are not provided then they will be set to each own default value*
+
 Default value:
 - `host`: `127.0.0.1`
 - `replication_strategy`: `SimpleStrategy`
