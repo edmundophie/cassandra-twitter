@@ -324,7 +324,6 @@ public class Twitter {
 //            System.out.println("@" + row.getString("username") + ": " +row.getString("body"));
 //        }
 //
-//
 //        System.out.println("Hasil konversi: ");
 
         int size = resultslist.size();
