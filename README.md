@@ -34,6 +34,7 @@ Default value:
 - `replication_factor`: `1`
 
 ## Commands
+List of command available in the application:
 - `register <username> <password>`
 - `follow <follower_username> <followed_username>`
 - `addtweet <username> <tweet>`
