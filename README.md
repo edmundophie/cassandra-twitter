@@ -34,7 +34,7 @@ Default value:
 - `replication_factor`: `1`
 
 ## Commands
-- `register <username>`
+- `register <username> <password>`
 - `follow <follower_username> <followed_username>`
 - `addtweet <username> <tweet>`
 - `viewtweet <username>`
