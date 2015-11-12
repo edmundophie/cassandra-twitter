@@ -40,7 +40,7 @@ public class Twitter {
             replicationFactor = args[2];
 
         Twitter twitter = new Twitter();
-        twitter.connect("167.205.35.19");
+        twitter.connect(host);
         twitter.createSchema(TWITTER_KEYSPACE, replicationStrategy, replicationFactor);
 
         System.out.println("\n*** DIRECTIVES ***");
@@ -219,6 +219,8 @@ public class Twitter {
         Long unixTime = System.currentTimeMillis();
 
         /** Jika OS yang digunakan bukanlah ubuntu, maka gantikan baris kode di atas dengan baris kode di bawah ini**/
+
+//        Long unixTime = System.currentTimeMillis()/1000;
 
         String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
                 "VALUES ('" + followedUsername + "', '" + followerUsername+ "', " + unixTime + ");";
