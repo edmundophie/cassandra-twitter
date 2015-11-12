@@ -106,6 +106,9 @@ public class Twitter {
                 } else
                     printInvalidCommand();
             }
+            if (command == null){
+                command = "";
+            }
         } while(!command.equalsIgnoreCase("EXIT"));
 
         twitter.close();
@@ -234,28 +237,12 @@ public class Twitter {
         ResultSet results = session.execute("SELECT follower FROM " + TABLE_FOLLOWERS +
                 " WHERE username = '" + username + "';");
 
-//        List<Row> rows = results.all();
-//        if(rows.size()>0) {
-//            query = "INSERT INTO " + TABLE_TIMELINE + " (username, time, tweet_id) VALUES ";
-//
-//            for(int i=0;i<rows.size();++i) {
-//                query += "('" + rows.get(i).getString(0) + "', "+ timeId +", " + tweetId + ")";
-//                if(i!=rows.size()-1)
-//                    query += ",";
-//            }
-//            query += ";";
-//
-//            System.out.println("Query yg akan dieksekusi: " + query);
-//            session.execute(query);
-//        }
-
         List<Row> rows = results.all();
         if(rows.size()>0) {
 
             for(int i=0;i<rows.size();++i) {
                 query = "INSERT INTO " + TABLE_TIMELINE + " (username, time, tweet_id) VALUES ";
                 query += "('" + rows.get(i).getString(0) + "', "+ timeId +", " + tweetId + ");";
-                System.out.println("Query yg akan dieksekusi: " + query);
                 session.execute(query);
             }
         }
