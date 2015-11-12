@@ -22,9 +22,7 @@ Simple usage of Cassandra driver on Java for CRUD operation
 
 Run `Twitter` from the generated `jar` in `target` folder  
 
-	 ```
 	 $ java -cp target/dependency/*:target/cassandra-twitter-1.0.jar com.edmundophie.cassandra.Twitter <host> <replication_strategy> <replication_factor>
-	 ```
 	 
 *Note that parameter `host`, `replication_strategy`, and `replication_factor` are optional. If any of them are not provided then they will be set to each own default value*
 
