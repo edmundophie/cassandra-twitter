@@ -74,9 +74,6 @@ public class Twitter {
                 } else
                     command = input;
 
-//                System.out.println("Command yang diinput: " + command);
-//                System.out.println("Byk param: "+ parameters.length);
-
                 if (command.equalsIgnoreCase("REGISTER") && parameters.length == 2) {
                     if(twitter.isUserExist(parameters[0]))
                         System.out.println("* Username already exist!");
@@ -207,20 +204,7 @@ public class Twitter {
     }
 
     public void followUser(String followerUsername, String followedUsername) {
-//        String timeId = UUIDs.timeBased().toString();
-//        String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
-//                "VALUES ('" + followedUsername + "', '" + followerUsername+ "', toUnixTimestamp("+timeId+"));";
-//        session.execute(query);
-//
-//        query = "INSERT INTO " + TABLE_FRIENDS + " (username, friend, since) " +
-//                "VALUES ('" + followerUsername + "', '" + followedUsername+ "', toUnixTimestamp("+timeId+"));";
-//        session.execute(query);
-
         Long unixTime = System.currentTimeMillis();
-
-        /** Jika OS yang digunakan bukanlah ubuntu, maka gantikan baris kode di atas dengan baris kode di bawah ini**/
-
-//        Long unixTime = System.currentTimeMillis()/1000;
 
         String query = "INSERT INTO " + TABLE_FOLLOWERS + " (username, follower, since) " +
                 "VALUES ('" + followedUsername + "', '" + followerUsername+ "', " + unixTime + ");";
@@ -277,17 +261,9 @@ public class Twitter {
                 tweetIds += ",";
         }
 
-//        System.out.println("TweetsIds: " + tweetIds);
-
         String query = "SELECT username, body FROM " + TABLE_TWEETS +
                 " WHERE tweet_id IN ("+ tweetIds +");";
         results = session.execute(query);
-
-//        System.out.println("Results getUserLine: " );
-//
-//        for(Row row:results) {
-//            System.out.println("@" + row.getString("username") + ": " +row.getString("body"));
-//        }
 
         return results;
     }
@@ -317,14 +293,6 @@ public class Twitter {
         if(resultslist.isEmpty()) {
             System.out.println("* No tweet yet");
         }
-
-//        System.out.println("Hasil tanpa konversi: ");
-//
-//        for(Row row:results) {
-//            System.out.println("@" + row.getString("username") + ": " +row.getString("body"));
-//        }
-//
-//        System.out.println("Hasil konversi: ");
 
         int size = resultslist.size();
 
