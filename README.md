@@ -4,6 +4,7 @@ Simple usage of Cassandra driver on Java for CRUD operation
 ## Requirements
  - JDK >= 1.7
  - [Maven](https://maven.apache.org/download.cgi) 
+ - Cassandra
 
 ## How to Build
 1. Resolve maven dependency  
@@ -19,19 +20,20 @@ Simple usage of Cassandra driver on Java for CRUD operation
 
 ## How to Run	 
 
-1. Run `Twitter` from the generated `jar` in `target` folder  
+Run `Twitter` from the generated `jar` in `target` folder  
 
-	 ```
-	 $ java -cp target/dependency/*:target/cassandra-twitter-1.0.jar com.edmundophie.cassandra.Twitter
-	 ```
-2. Run `ChatClient` from the generated `jar` in `target` folder  
+	 $ java -cp target/dependency/*:target/cassandra-twitter-1.0.jar com.edmundophie.cassandra.Twitter <host> <replication_strategy> <replication_factor>
+	 
+*Note that parameter `host`, `replication_strategy`, and `replication_factor` are optional. If any of them are not provided then they will be set to each own default value*
 
-	 ```
-	 $ java -cp target/dependency/*:target/kafka-chat-1.0.jar com.edmundophie.chat.ChatClient
-	 ```
+Default value:
+- `host`: `127.0.0.1`
+- `replication_strategy`: `SimpleStrategy`
+- `replication_factor`: `1`
 
 ## Commands
-- `register <username>`
+List of command available in the application:
+- `register <username> <password>`
 - `follow <follower_username> <followed_username>`
 - `addtweet <username> <tweet>`
 - `viewtweet <username>`
